@@ -15,6 +15,8 @@ import MemberDescription from '@site/src/components/MemberDescription';
 
 Configures a bulk action which can be performed on all selected items in a list view.
 
+Configures a bulk action which can be performed on all selected items in a list view.
+
 For a full example, see the <a href='/reference/admin-ui-api/bulk-actions/register-bulk-action#registerbulkaction'>registerBulkAction</a> docs.
 
 ```ts title="Signature"
@@ -46,9 +48,7 @@ interface BulkAction<ItemType = any, ComponentType = any> {
 
 ### getTranslationVars
 
-<MemberInfo kind="property" type={`(
-         context: <a href='/reference/admin-ui-api/bulk-actions/bulk-action#bulkactionfunctioncontext'>BulkActionFunctionContext</a>&#60;ItemType, ComponentType&#62;,
-     ) =&#62; Record&#60;string, string | number&#62; | Promise&#60;Record&#60;string, string | number&#62;&#62;`}   />
+<MemberInfo kind="property" type={`(         context: <a href='/reference/admin-ui-api/bulk-actions/bulk-action#bulkactionfunctioncontext'>BulkActionFunctionContext</a>&#60;ItemType, ComponentType&#62;,     ) =&#62; Record&#60;string, string | number&#62; | Promise&#60;Record&#60;string, string | number&#62;&#62;`}   />
 
 An optional function that should resolve to a map of translation variables which can be
 used when translating the `label` string.

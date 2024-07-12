@@ -33,6 +33,11 @@ in, and how it may transition from one state to another. Using the `onTransition
 FulfillmentProcess can perform checks before allowing a state transition to occur, and the `onTransitionEnd()`
 hook allows logic to be executed after a state change.
 
+A FulfillmentProcess is used to define the way the fulfillment process works as in: what states a Fulfillment can be
+in, and how it may transition from one state to another. Using the `onTransitionStart()` hook, a
+FulfillmentProcess can perform checks before allowing a state transition to occur, and the `onTransitionEnd()`
+hook allows logic to be executed after a state change.
+
 For detailed description of the interface members, see the <a href='/reference/typescript-api/state-machine/state-machine-config#statemachineconfig'>StateMachineConfig</a> docs.
 
 ```ts title="Signature"
@@ -52,8 +57,7 @@ interface FulfillmentProcess<State extends keyof CustomFulfillmentStates | strin
 
 ### transitions
 
-<MemberInfo kind="property" type={`<a href='/reference/typescript-api/state-machine/transitions#transitions'>Transitions</a>&#60;State, State | <a href='/reference/typescript-api/fulfillment/fulfillment-state#fulfillmentstate'>FulfillmentState</a>&#62; &#38;
-         Partial&#60;<a href='/reference/typescript-api/state-machine/transitions#transitions'>Transitions</a>&#60;<a href='/reference/typescript-api/fulfillment/fulfillment-state#fulfillmentstate'>FulfillmentState</a> | State&#62;&#62;`}   />
+<MemberInfo kind="property" type={`<a href='/reference/typescript-api/state-machine/transitions#transitions'>Transitions</a>&#60;State, State | <a href='/reference/typescript-api/fulfillment/fulfillment-state#fulfillmentstate'>FulfillmentState</a>&#62; &#38;         Partial&#60;<a href='/reference/typescript-api/state-machine/transitions#transitions'>Transitions</a>&#60;<a href='/reference/typescript-api/fulfillment/fulfillment-state#fulfillmentstate'>FulfillmentState</a> | State&#62;&#62;`}   />
 
 
 ### onTransitionStart

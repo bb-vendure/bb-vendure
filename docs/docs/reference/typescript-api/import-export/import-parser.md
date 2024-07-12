@@ -56,11 +56,7 @@ interface ParsedOptionGroup {
 
 ### translations
 
-<MemberInfo kind="property" type={`Array&#60;{
-         languageCode: <a href='/reference/typescript-api/common/language-code#languagecode'>LanguageCode</a>;
-         name: string;
-         values: string[];
-     }&#62;`}   />
+<MemberInfo kind="property" type={`Array&#60;{         languageCode: <a href='/reference/typescript-api/common/language-code#languagecode'>LanguageCode</a>;         name: string;         values: string[];     }&#62;`}   />
 
 
 
@@ -89,11 +85,8 @@ interface ParsedFacet {
 
 ### translations
 
-<MemberInfo kind="property" type={`Array&#60;{
-         languageCode: <a href='/reference/typescript-api/common/language-code#languagecode'>LanguageCode</a>;
-         facet: string;
-         value: string;
-     }&#62;`}   />
+<MemberInfo kind="property" type={`Array&#60;{         languageCode: <a href='/reference/typescript-api/common/language-code#languagecode'>LanguageCode</a>;         facet: string;         value: string;     }&#62;`}   />
+
 
 @bb-vendure
 
@@ -166,13 +159,7 @@ interface ParsedProductVariant {
 
 ### translations
 
-<MemberInfo kind="property" type={`Array&#60;{
-         languageCode: <a href='/reference/typescript-api/common/language-code#languagecode'>LanguageCode</a>;
-         optionValues: string[];@bb-vendure
-         customFields: {
-             [name: string]: string;
-         };
-     }&#62;`}   />
+<MemberInfo kind="property" type={`Array&#60;{         languageCode: <a href='/reference/typescript-api/common/language-code#languagecode'>LanguageCode</a>;         optionValues: string[];         customFields: {             [name: string]: string;         };     }&#62;`}   />
 
 
 
@@ -223,15 +210,7 @@ interface ParsedProduct {
 
 ### translations
 
-<MemberInfo kind="property" type={`Array&#60;{
-         languageCode: <a href='/reference/typescript-api/common/language-code#languagecode'>LanguageCode</a>;
-         name: string;
-         slug: string;
-         description: string;
-         customFields: {
-             [name: string]: string;
-         };
-     }&#62;`}   />
+<MemberInfo kind="property" type={`Array&#60;{         languageCode: <a href='/reference/typescript-api/common/language-code#languagecode'>LanguageCode</a>;         name: string;         slug: string;         description: string;         customFields: {             [name: string]: string;         };     }&#62;`}   />
 
 
 

@@ -49,6 +49,30 @@ yarn add --dev @bb-vendure/ui-devkit
 </TabItem>
 </Tabs>
 
+:::info
+If you plan to use React components in your UI extensions, you should also install the `@types/react` package:
+
+
+<Tabs>
+<TabItem value="npm" label="npm" default>
+
+```bash
+npm install --save-dev @types/react
+```
+
+</TabItem>
+<TabItem value="yarn" label="yarn">
+
+```bash
+yarn add --dev @types/react
+```
+
+</TabItem>
+</Tabs>
+
+:::
+
+
 You can then create the following folder structure to hold your UI extensions:
 
 ```
@@ -370,6 +394,43 @@ yarn add copyfiles
 ## Using other frameworks
 
 While the Admin UI natively supports extensions written with Angular or React, it is still possible to create extensions using other front-end frameworks such as Vue or Solid. Note that creating extensions in this way is much more limited, with only the ability to define new routes, and limited access to internal services such as data fetching and notifications. See [UI extensions in other frameworks](/guides/extending-the-admin-ui/using-other-frameworks/).
+
+## IDE Support
+
+### WebStorm
+
+If you are using Angular in your UI extensions and WebStorm is not recognizing the Angular templates, you can
+add an `angular.json` file to the `/src/plugins/<my-plugin>/ui` directory:
+
+```json title="angular.json"
+{
+    "$schema": "../../../../node_modules/@angular/cli/lib/config/schema.json",
+    "version": 1,
+    "newProjectRoot": "projects",
+    "projects": {
+        "ui-extensions": {
+            "root": "",
+            "sourceRoot": "src",
+            "projectType": "application"
+        }
+    }
+}
+```
+
+This allows WebStorm's built-in Angular support to recognize the Angular templates in your UI extensions. Note that depending
+on your folder structure, you may need to adjust the path to the schema file in the `$schema` property.
+
+### VS Code
+
+If you are using Angular in your UI extensions and VS Code is not recognizing the Angular templates, you can
+add an empty `tsconfig.json` file to the `/src/plugins/<my-plugin>/ui` directory:
+
+```json title="tsconfig.json"
+{}
+```
+
+This works around the fact that your main `tsconfig.json` file excludes the `src/plugins/**/ui` directory, 
+which would otherwise prevent the Angular Language Service from working correctly.
 
 ## Legacy API < v2.1.0
 

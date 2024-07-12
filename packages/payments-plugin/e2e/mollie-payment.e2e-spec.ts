@@ -4,6 +4,7 @@ import {
     EventBus,
     LanguageCode,
     mergeConfig,
+    Order,
     OrderPlacedEvent,
     OrderService,
     RequestContext,
@@ -44,10 +45,17 @@ import {
     GetOrderByCodeQueryVariables,
     TestOrderFragmentFragment,
 } from './graphql/generated-shop-types';
-import { ADD_ITEM_TO_ORDER, GET_ORDER_BY_CODE } from './graphql/shop-queries';
+import {
+    ADD_ITEM_TO_ORDER,
+    APPLY_COUPON_CODE,
+    GET_ACTIVE_ORDER,
+    GET_ORDER_BY_CODE,
+} from './graphql/shop-queries';
 import {
     addManualPayment,
     CREATE_MOLLIE_PAYMENT_INTENT,
+    createFixedDiscountCoupon,
+    createFreeShippingCoupon,
     GET_MOLLIE_PAYMENT_METHODS,
     refundOrderLine,
     setShipping,
@@ -66,7 +74,36 @@ const mockData = {
                 href: 'https://www.mollie.com/payscreen/select-method/mock-payment',
             },
         },
-        lines: [],
+        lines: [
+            {
+                resource: 'orderline',
+                id: 'odl_3.c0qfy7',
+                orderId: 'ord_1.6i4fed',
+                name: 'Pinelab stickers',
+                status: 'created',
+                isCancelable: false,
+                quantity: 10,
+                createdAt: '2024-06-25T11:41:56+00:00',
+            },
+            {
+                resource: 'orderline',
+                id: 'odl_3.nj3d5u',
+                orderId: 'ord_1.6i4fed',
+                name: 'Express Shipping',
+                isCancelable: false,
+                quantity: 1,
+                createdAt: '2024-06-25T11:41:57+00:00',
+            },
+            {
+                resource: 'orderline',
+                id: 'odl_3.nklsl4',
+                orderId: 'ord_1.6i4fed',
+                name: 'Negative test surcharge',
+                isCancelable: false,
+                quantity: 1,
+                createdAt: '2024-06-25T11:41:57+00:00',
+            },
+        ],
         _embedded: {
             payments: [
                 {
@@ -196,7 +233,7 @@ describe('Mollie payments', () => {
                 authorizedAsOwnerOnly: false,
                 channel: await server.app.get(ChannelService).getDefaultChannel(),
             });
-            await server.app.get(OrderService).addSurchargeToOrder(ctx, 1, {
+            await server.app.get(OrderService).addSurchargeToOrder(ctx, order.id.replace('T_', ''), {
                 description: 'Negative test surcharge',
                 listPrice: SURCHARGE_AMOUNT,
             });
@@ -352,7 +389,7 @@ describe('Mollie payments', () => {
             });
         });
 
-        it('Should update existing Mollie order', async () => {
+        it('Should recreate all order lines in Mollie', async () => {
             // Should fetch the existing order from Mollie
             nock('https://api.mollie.com/')
                 .get('/v2/orders/ord_mockId')
@@ -374,18 +411,21 @@ describe('Mollie payments', () => {
                     paymentMethodCode: mockData.methodCode,
                 },
             });
-            // We expect the patch request to add 3 order lines, because the mock response has 0 lines
             expect(createMolliePaymentIntent.url).toBeDefined();
-            expect(molliePatchRequest.operations).toBeDefined();
-            expect(molliePatchRequest.operations[0].operation).toBe('add');
-            expect(molliePatchRequest.operations[0].data).toHaveProperty('name');
-            expect(molliePatchRequest.operations[0].data).toHaveProperty('quantity');
-            expect(molliePatchRequest.operations[0].data).toHaveProperty('unitPrice');
-            expect(molliePatchRequest.operations[0].data).toHaveProperty('totalAmount');
-            expect(molliePatchRequest.operations[0].data).toHaveProperty('vatRate');
-            expect(molliePatchRequest.operations[0].data).toHaveProperty('vatAmount');
-            expect(molliePatchRequest.operations[1].operation).toBe('add');
-            expect(molliePatchRequest.operations[2].operation).toBe('add');
+            // Should have removed all 3 previous order lines
+            const cancelledLines = molliePatchRequest.operations.filter((o: any) => o.operation === 'cancel');
+            expect(cancelledLines.length).toBe(3);
+            // Should have added all 3 new order lines
+            const addedLines = molliePatchRequest.operations.filter((o: any) => o.operation === 'add');
+            expect(addedLines.length).toBe(3);
+            addedLines.forEach((line: any) => {
+                expect(line.data).toHaveProperty('name');
+                expect(line.data).toHaveProperty('quantity');
+                expect(line.data).toHaveProperty('unitPrice');
+                expect(line.data).toHaveProperty('totalAmount');
+                expect(line.data).toHaveProperty('vatRate');
+                expect(line.data).toHaveProperty('vatAmount');
+            });
         });
 
         it('Should get payment url with deducted amount if a payment is already made', async () => {
@@ -441,6 +481,34 @@ describe('Mollie payments', () => {
             expect(method.maximumAmount).toBeDefined();
             expect(method.image).toBeDefined();
         });
+
+        it('Transitions to PaymentSettled for orders with a total of $0', async () => {
+            await shopClient.asUserWithCredentials(customers[1].emailAddress, 'test');
+            const { addItemToOrder } = await shopClient.query(ADD_ITEM_TO_ORDER, {
+                productVariantId: 'T_1',
+                quantity: 1,
+            });
+            await setShipping(shopClient);
+            // Discount the order so it has a total of $0
+            await createFixedDiscountCoupon(adminClient, 156880, 'DISCOUNT_ORDER');
+            await createFreeShippingCoupon(adminClient, 'FREE_SHIPPING');
+            await shopClient.query(APPLY_COUPON_CODE, { couponCode: 'DISCOUNT_ORDER' });
+            await shopClient.query(APPLY_COUPON_CODE, { couponCode: 'FREE_SHIPPING' });
+            // Create payment intent
+            const { createMolliePaymentIntent: intent } = await shopClient.query(
+                CREATE_MOLLIE_PAYMENT_INTENT,
+                {
+                    input: {
+                        paymentMethodCode: mockData.methodCode,
+                        redirectUrl: 'https://my-storefront.io/order-confirmation',
+                    },
+                },
+            );
+            const { orderByCode } = await shopClient.query(GET_ORDER_BY_CODE, { code: addItemToOrder.code });
+            expect(intent.url).toBe('https://my-storefront.io/order-confirmation');
+            expect(orderByCode.totalWithTax).toBe(0);
+            expect(orderByCode.state).toBe('PaymentSettled');
+        });
     });
 
     describe('Handle standard payment methods', () => {
@@ -486,6 +554,7 @@ describe('Mollie payments', () => {
                 body: JSON.stringify({ id: mockData.mollieOrderResponse.id }),
                 headers: { 'Content-Type': 'application/json' },
             });
+            await shopClient.asUserWithCredentials(customers[0].emailAddress, 'test');
             const { orderByCode } = await shopClient.query<GetOrderByCodeQuery, GetOrderByCodeQueryVariables>(
                 GET_ORDER_BY_CODE,
                 {
@@ -500,6 +569,11 @@ describe('Mollie payments', () => {
         it('Should have preserved original languageCode ', () => {
             // We've set the languageCode to 'nl' in the mock response's metadata
             expect(orderPlacedEvent?.ctx.languageCode).toBe('nl');
+        });
+
+        it('Resulting events should have a ctx.req ', () => {
+            // We've set the languageCode to 'nl' in the mock response's metadata
+            expect(orderPlacedEvent?.ctx?.req).toBeDefined();
         });
 
         it('Should have Mollie metadata on payment', async () => {

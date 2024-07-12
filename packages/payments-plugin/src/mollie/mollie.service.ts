@@ -39,14 +39,7 @@ import {
     MolliePaymentMethod,
 } from './graphql/generated-shop-types';
 import { molliePaymentHandler } from './mollie.handler';
-import {
-    amountToCents,
-    areOrderLinesEqual,
-    getLocale,
-    toAmount,
-    toMollieAddress,
-    toMollieOrderLines,
-} from './mollie.helpers';
+import { amountToCents, getLocale, toAmount, toMollieAddress, toMollieOrderLines } from './mollie.helpers';
 import { MolliePluginOptions } from './mollie.plugin';
 
 interface OrderStatusInput {
@@ -176,6 +169,28 @@ export class MollieService {
         }
         const alreadyPaid = totalCoveredByPayments(order);
         const amountToPay = order.totalWithTax - alreadyPaid;
+        if (amountToPay === 0) {
+            // The order can be transitioned to PaymentSettled, because the order has 0 left to pay
+            // Only admins can add payments, so we need an admin ctx
+            const adminCtx = new RequestContext({
+                apiType: 'admin',
+                isAuthorized: true,
+                authorizedAsOwnerOnly: false,
+                channel: ctx.channel,
+                languageCode: ctx.languageCode,
+            });
+            await this.addPayment(
+                adminCtx,
+                order,
+                amountToPay,
+                { method: 'Settled without Mollie' },
+                paymentMethod.code,
+                'Settled',
+            );
+            return {
+                url: redirectUrl,
+            };
+        }
         const orderInput: CreateParameters = {
             orderNumber: order.code,
             amount: toAmount(amountToPay, order.currencyCode),
@@ -260,6 +275,7 @@ export class MollieService {
                 apiType: 'admin',
                 isAuthorized: true,
                 authorizedAsOwnerOnly: false,
+                req: ctx.req,
                 channel: ctx.channel,
                 languageCode: mollieOrder.metadata.languageCode as LanguageCode,
             });
@@ -289,17 +305,18 @@ export class MollieService {
             );
             return;
         }
+        const amount = amountToCents(mollieOrder.amount);
         if (mollieOrder.status === OrderStatus.expired) {
             // Expired is fine, a customer can retry the payment later
             return;
         }
         if (mollieOrder.status === OrderStatus.paid) {
             // Paid is only used by 1-step payments without Authorized state. This will settle immediately
-            await this.addPayment(ctx, order, mollieOrder, paymentMethod.code, 'Settled');
+            await this.addPayment(ctx, order, amount, mollieOrder, paymentMethod.code, 'Settled');
             return;
         }
         if (order.state === 'AddingItems' && mollieOrder.status === OrderStatus.authorized) {
-            order = await this.addPayment(ctx, order, mollieOrder, paymentMethod.code, 'Authorized');
+            order = await this.addPayment(ctx, order, amount, mollieOrder, paymentMethod.code, 'Authorized');
             if (autoCapture && mollieOrder.status === OrderStatus.authorized) {
                 // Immediately capture payment if autoCapture is set
                 Logger.info(`Auto capturing payment for order ${order.code}`, loggerCtx);
@@ -327,7 +344,8 @@ export class MollieService {
     async addPayment(
         ctx: RequestContext,
         order: Order,
-        mollieOrder: MollieOrder,
+        amount: number,
+        mollieMetadata: Partial<MollieOrder>,
         paymentMethodCode: string,
         status: 'Authorized' | 'Settled',
     ): Promise<Order> {
@@ -347,15 +365,15 @@ export class MollieService {
         const addPaymentToOrderResult = await this.orderService.addPaymentToOrder(ctx, order.id, {
             method: paymentMethodCode,
             metadata: {
-                amount: amountToCents(mollieOrder.amount),
+                amount,
                 status,
-                orderId: mollieOrder.id,
-                mode: mollieOrder.mode,
-                method: mollieOrder.method,
-                profileId: mollieOrder.profileId,
-                settlementAmount: mollieOrder.amount,
-                authorizedAt: mollieOrder.authorizedAt,
-                paidAt: mollieOrder.paidAt,
+                orderId: mollieMetadata.id,
+                mode: mollieMetadata.mode,
+                method: mollieMetadata.method,
+                profileId: mollieMetadata.profileId,
+                settlementAmount: mollieMetadata.amount,
+                authorizedAt: mollieMetadata.authorizedAt,
+                paidAt: mollieMetadata.paidAt,
             },
         });
         if (!(addPaymentToOrderResult instanceof Order)) {
@@ -458,48 +476,32 @@ export class MollieService {
     }
 
     /**
-     * Compare existing order lines with the new input,
-     * and update, add or cancel the order lines accordingly.
-     *
-     * We compare and update order lines based on their index, because there is no unique identifier
+     * Delete all order lines of current Mollie order, and create new ones based on the new Vendure order lines
      */
     private async updateMollieOrderLines(
         mollieClient: ExtendedMollieClient,
         existingMollieOrder: MollieOrder,
+        /**
+         * These are the new order lines based on the Vendure order
+         */
         newMollieOrderLines: CreateParameters['lines'],
     ): Promise<MollieOrder> {
         const manageOrderLinesInput: ManageOrderLineInput = {
             operations: [],
         };
-        // Update or add new order lines
-        newMollieOrderLines.forEach((newLine, index) => {
-            const existingLine = existingMollieOrder.lines[index];
-            if (existingLine && !areOrderLinesEqual(existingLine, newLine)) {
-                // Update if exists but not equal
-                manageOrderLinesInput.operations.push({
-                    operation: 'update',
-                    data: {
-                        ...newLine,
-                        id: existingLine.id,
-                    },
-                });
-            } else {
-                // Add new line if it doesn't exist
-                manageOrderLinesInput.operations.push({
-                    operation: 'add',
-                    data: newLine,
-                });
-            }
+        // Cancel all previous order lines and create new ones
+        existingMollieOrder.lines.forEach(existingLine => {
+            manageOrderLinesInput.operations.push({
+                operation: 'cancel',
+                data: { id: existingLine.id },
+            });
         });
-        // Cancel any order lines that are in the existing Mollie order, but not in the new input
-        existingMollieOrder.lines.forEach((existingLine, index) => {
-            const newLine = newMollieOrderLines[index];
-            if (!newLine) {
-                manageOrderLinesInput.operations.push({
-                    operation: 'cancel',
-                    data: { id: existingLine.id },
-                });
-            }
+        // Add new order lines
+        newMollieOrderLines.forEach(newLine => {
+            manageOrderLinesInput.operations.push({
+                operation: 'add',
+                data: newLine,
+            });
         });
         return await mollieClient.manageOrderLines(existingMollieOrder.id, manageOrderLinesInput);
     }

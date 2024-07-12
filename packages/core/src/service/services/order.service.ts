@@ -472,8 +472,8 @@ export class OrderService {
     async updateCustomFields(ctx: RequestContext, orderId: ID, customFields: any) {
         let order = await this.getOrderOrThrow(ctx, orderId);
         order = patchEntity(order, { customFields });
-        await this.customFieldRelationService.updateRelations(ctx, Order, { customFields }, order);
         const updatedOrder = await this.connection.getRepository(ctx, Order).save(order);
+        await this.customFieldRelationService.updateRelations(ctx, Order, { customFields }, updatedOrder);
         await this.eventBus.publish(new OrderEvent(ctx, updatedOrder, 'updated'));
         return updatedOrder;
     }
@@ -1547,7 +1547,9 @@ export class OrderService {
                 .getRepository(ctx, Session)
                 .update(sessions.map(s => s.id) as string[], { activeOrder: null });
         }
+        const deletedOrder = new Order(orderToDelete);
         await this.connection.getRepository(ctx, Order).delete(orderToDelete.id);
+        await this.eventBus.publish(new OrderEvent(ctx, deletedOrder, 'deleted'));
     }
 
     /**
