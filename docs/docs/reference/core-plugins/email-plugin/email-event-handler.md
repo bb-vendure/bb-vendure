@@ -11,7 +11,7 @@ import MemberDescription from '@site/src/components/MemberDescription';
 
 ## EmailEventHandler
 
-<GenerationInfo sourceFile="packages/email-plugin/src/handler/event-handler.ts" sourceLine="135" packageName="@vendure/email-plugin" />
+<GenerationInfo sourceFile="packages/email-plugin/src/handler/event-handler.ts" sourceLine="135" packageName="@bb-vendure/email-plugin" />
 
 The EmailEventHandler defines how the EmailPlugin will respond to a given event.
 

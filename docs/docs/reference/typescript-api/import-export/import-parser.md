@@ -66,7 +66,7 @@ interface ParsedOptionGroup {
 
 ## ParsedFacet
 
-<GenerationInfo sourceFile="packages/core/src/data-import/providers/import-parser/import-parser.ts" sourceLine="61" packageName="@vendure/core" />
+<GenerationInfo sourceFile="packages/core/src/data-import/providers/import-parser/import-parser.ts" sourceLine="61" packageName="@bb-vendure/core" />
 
 The intermediate representation of a Facet after it has been parsed
 by the <a href='/reference/typescript-api/import-export/import-parser#importparser'>ImportParser</a>.
@@ -96,7 +96,7 @@ interface ParsedFacet {
 
 ## ParsedProductVariant
 
-<GenerationInfo sourceFile="packages/core/src/data-import/providers/import-parser/import-parser.ts" sourceLine="77" packageName="@vendure/core" />
+<GenerationInfo sourceFile="packages/core/src/data-import/providers/import-parser/import-parser.ts" sourceLine="77" packageName="@bb-vendure/core" />
 
 The intermediate representation of a ProductVariant after it has been parsed
 by the <a href='/reference/typescript-api/import-export/import-parser#importparser'>ImportParser</a>.
@@ -169,7 +169,7 @@ interface ParsedProductVariant {
 
 ## ParsedProduct
 
-<GenerationInfo sourceFile="packages/core/src/data-import/providers/import-parser/import-parser.ts" sourceLine="102" packageName="@vendure/core" />
+<GenerationInfo sourceFile="packages/core/src/data-import/providers/import-parser/import-parser.ts" sourceLine="102" packageName="@bb-vendure/core" />
 
 The intermediate representation of a Product after it has been parsed
 by the <a href='/reference/typescript-api/import-export/import-parser#importparser'>ImportParser</a>.
@@ -220,7 +220,7 @@ interface ParsedProduct {
 
 ## ParsedProductWithVariants
 
-<GenerationInfo sourceFile="packages/core/src/data-import/providers/import-parser/import-parser.ts" sourceLine="125" packageName="@vendure/core" />
+<GenerationInfo sourceFile="packages/core/src/data-import/providers/import-parser/import-parser.ts" sourceLine="125" packageName="@bb-vendure/core" />
 
 The data structure into which an import CSV file is parsed by the
 <a href='/reference/typescript-api/import-export/import-parser#importparser'>ImportParser</a> `parseProducts()` method.
@@ -251,7 +251,7 @@ interface ParsedProductWithVariants {
 
 ## ParseResult
 
-<GenerationInfo sourceFile="packages/core/src/data-import/providers/import-parser/import-parser.ts" sourceLine="137" packageName="@vendure/core" />
+<GenerationInfo sourceFile="packages/core/src/data-import/providers/import-parser/import-parser.ts" sourceLine="137" packageName="@bb-vendure/core" />
 
 The result returned by the <a href='/reference/typescript-api/import-export/import-parser#importparser'>ImportParser</a> `parseProducts()` method.
 

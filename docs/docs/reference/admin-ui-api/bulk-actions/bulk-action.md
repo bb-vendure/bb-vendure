@@ -87,7 +87,7 @@ running here.
 *Example*
 @bb-vendure
 ```ts
-import { registerBulkAction, DataService } from '@vendure/admin-ui/core';
+import { registerBulkAction, DataService } from '@bb-vendure/admin-ui/core';
 
 registerBulkAction({
   location: 'product-list',
@@ -127,7 +127,7 @@ registerBulkAction({
 
 ## BulkActionLocationId@bb-vendure
 
-<GenerationInfo sourceFile="packages/admin-ui/src/lib/core/src/providers/bulk-action-registry/bulk-action-types.ts" sourceLine="12" packageName="@vendure/admin-ui" since="1.8.0" />
+<GenerationInfo sourceFile="packages/admin-ui/src/lib/core/src/providers/bulk-action-registry/bulk-action-types.ts" sourceLine="12" packageName="@bb-vendure/admin-ui" since="1.8.0" />
 
 A valid location of a list view that supports the bulk actions API.
 
@@ -157,7 +157,7 @@ type BulkActionLocationId = | 'product-list'
 
 ## BulkActionFunctionContext@bb-vendure
 
-<GenerationInfo sourceFile="packages/admin-ui/src/lib/core/src/providers/bulk-action-registry/bulk-action-types.ts" sourceLine="43" packageName="@vendure/admin-ui" since="1.8.0" />
+<GenerationInfo sourceFile="packages/admin-ui/src/lib/core/src/providers/bulk-action-registry/bulk-action-types.ts" sourceLine="43" packageName="@bb-vendure/admin-ui" since="1.8.0" />
 
 This is the argument which gets passed to the `getTranslationVars` and `isVisible` functions
 of the BulkAction definition.
@@ -204,7 +204,7 @@ to get service instances which might be needed in the click handler.
 
 ## BulkActionClickContext@bb-vendure
 
-<GenerationInfo sourceFile="packages/admin-ui/src/lib/core/src/providers/bulk-action-registry/bulk-action-types.ts" sourceLine="74" packageName="@vendure/admin-ui" since="1.8.0" />
+<GenerationInfo sourceFile="packages/admin-ui/src/lib/core/src/providers/bulk-action-registry/bulk-action-types.ts" sourceLine="74" packageName="@bb-vendure/admin-ui" since="1.8.0" />
 
 This is the argument which gets passed to the `onClick` function of a BulkAction.
 

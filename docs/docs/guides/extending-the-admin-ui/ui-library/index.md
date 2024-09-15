@@ -193,7 +193,7 @@ Form inputs are styled globally, so you don't need to use special components for
 ```tsx
 import React from 'react';
 import { starIcon, userIcon } from '@cds/core/icon';
-import { FormField, RichTextEditor } from '@vendure/admin-ui/react';
+import { FormField, RichTextEditor } from '@bb-vendure/admin-ui/react';
 
 export function DemoComponent() {
     return (

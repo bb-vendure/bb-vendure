@@ -83,7 +83,7 @@ better match with custom email sending functionality.
 
 ## EmailPluginDevModeOptions
 
-<GenerationInfo sourceFile="packages/email-plugin/src/types.ts" sourceLine="111" packageName="@vendure/email-plugin" />
+<GenerationInfo sourceFile="packages/email-plugin/src/types.ts" sourceLine="111" packageName="@bb-vendure/email-plugin" />
 
 Configuration for running the EmailPlugin in development mode.
 

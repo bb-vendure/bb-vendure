@@ -141,7 +141,7 @@ export class PackageJson {
             return false;
         }
         const packageJson = fs.readJsonSync(packageJsonPath);
-        return !!packageJson.dependencies?.['@vendure/core'];
+        return !!packageJson.dependencies?.['@bb-vendure/core'];
     }
 
     private async runPackageManagerInstall(dependencies: string[], isDev: boolean) {

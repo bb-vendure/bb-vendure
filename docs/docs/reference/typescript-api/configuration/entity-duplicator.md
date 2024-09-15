@@ -133,7 +133,7 @@ class EntityDuplicator<T extends ConfigArgs = ConfigArgs> extends ConfigurableOp
 
 ## DuplicateEntityFn
 
-<GenerationInfo sourceFile="packages/core/src/config/entity/entity-duplicator.ts" sourceLine="21" packageName="@vendure/core" since="2.2.0" />
+<GenerationInfo sourceFile="packages/core/src/config/entity/entity-duplicator.ts" sourceLine="21" packageName="@bb-vendure/core" since="2.2.0" />
 
 A function which performs the duplication of an entity.
 
@@ -149,7 +149,7 @@ type DuplicateEntityFn<T extends ConfigArgs> = (input: {
 
 ## EntityDuplicatorConfig
 
-<GenerationInfo sourceFile="packages/core/src/config/entity/entity-duplicator.ts" sourceLine="36" packageName="@vendure/core" since="2.2.0" />
+<GenerationInfo sourceFile="packages/core/src/config/entity/entity-duplicator.ts" sourceLine="36" packageName="@bb-vendure/core" since="2.2.0" />
 
 Configuration for creating a new EntityDuplicator.
 

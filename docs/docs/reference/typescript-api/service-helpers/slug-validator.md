@@ -76,7 +76,7 @@ type InputWithSlug = {
 
 ## TranslationEntity
 
-<GenerationInfo sourceFile="packages/core/src/service/helpers/slug-validator/slug-validator.ts" sourceLine="29" packageName="@vendure/core" />
+<GenerationInfo sourceFile="packages/core/src/service/helpers/slug-validator/slug-validator.ts" sourceLine="29" packageName="@bb-vendure/core" />
 
 
 

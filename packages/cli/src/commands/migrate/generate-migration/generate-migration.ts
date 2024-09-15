@@ -2,7 +2,7 @@ import { cancel, isCancel, log, spinner, text } from '@clack/prompts';
 import { generateMigration } from '@bb-vendure/core';
 import { cancel, isCancel, log, multiselect, select, spinner, text } from '@clack/prompts';
 import { unique } from '@bb-vendure/common/lib/unique';
-import { generateMigration, VendureConfig } from '@vendure/core';
+import { generateMigration, VendureConfig } from '@bb-vendure/core';
 import * as fs from 'fs-extra';
 import path from 'path';
 
